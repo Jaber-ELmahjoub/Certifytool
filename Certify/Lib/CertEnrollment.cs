@@ -172,8 +172,12 @@ namespace Certify
                     break;
 
                 default:
+                    var last_status = (uint)cert_request.GetLastStatus();
                     Console.WriteLine("[!] CA Response             : The submission failed: {0}", cert_request.GetDispositionMessage());
-                    Console.WriteLine("[!] Last status             : 0x{0:X}", (uint)cert_request.GetLastStatus());
+                    Console.WriteLine("[!] Last status             : 0x{0:X}", last_status);
+
+                    if (CertificateServiceErrors.TryGetError(last_status, out var error_name, out var error_message))
+                        Console.WriteLine("[!] Last status info        : {0} - {1}", error_name, error_message);
                     break;
             }
 
@@ -360,7 +364,6 @@ namespace Certify
 
             return policies;
         }
-
         // from https://stackoverflow.com/a/23739932
         //    internal helper used to convert a RSA key to a PEM string
         private static string ExportPrivateKey(RSACryptoServiceProvider csp)
