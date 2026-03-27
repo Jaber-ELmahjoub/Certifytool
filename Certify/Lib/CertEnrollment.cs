@@ -2,6 +2,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System.IO;
 using System.Security.Cryptography;
+using System.Runtime.InteropServices;
 using Certify.Lib;
 using CERTENROLLLib;
 using CERTCLILib;
@@ -176,8 +177,13 @@ namespace Certify
                     Console.WriteLine("[!] CA Response             : The submission failed: {0}", cert_request.GetDispositionMessage());
                     Console.WriteLine("[!] Last status             : 0x{0:X}", last_status);
 
-                    if (CertificateServiceErrors.TryGetError(last_status, out var error_name, out var error_message))
-                        Console.WriteLine("[!] Last status info        : {0} - {1}", error_name, error_message);
+                    try
+                    {
+                        var exception = Marshal.GetExceptionForHR(unchecked((int)last_status));
+                        if (exception != null && !string.IsNullOrEmpty(exception.Message))
+                            Console.WriteLine("[!] Last status info        : {0}", exception.Message);
+                    }
+                    catch { }
                     break;
             }
 
