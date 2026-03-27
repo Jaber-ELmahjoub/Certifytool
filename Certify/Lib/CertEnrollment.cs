@@ -175,15 +175,12 @@ namespace Certify
                 default:
                     var last_status = (uint)cert_request.GetLastStatus();
                     Console.WriteLine("[!] CA Response             : The submission failed: {0}", cert_request.GetDispositionMessage());
-                    Console.WriteLine("[!] Last status             : 0x{0:X}", last_status);
 
-                    try
-                    {
-                        var exception = Marshal.GetExceptionForHR(unchecked((int)last_status));
-                        if (exception != null && !string.IsNullOrEmpty(exception.Message))
-                            Console.WriteLine("[!] Last status info        : {0}", exception.Message);
-                    }
-                    catch { }
+                    var exception = Marshal.GetExceptionForHR(unchecked((int)last_status));
+                    if (exception != null && !string.IsNullOrEmpty(exception.Message))
+                        Console.WriteLine("[!] Last status             : {0}", exception.Message);
+                    else
+                        Console.WriteLine("[!] Last status             : 0x{0:X}", last_status);
                     break;
             }
 
