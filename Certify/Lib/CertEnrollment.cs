@@ -2,6 +2,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System.IO;
 using System.Security.Cryptography;
+using System.Runtime.InteropServices;
 using Certify.Lib;
 using CERTENROLLLib;
 using CERTCLILib;
@@ -172,8 +173,14 @@ namespace Certify
                     break;
 
                 default:
+                    var last_status = (uint)cert_request.GetLastStatus();
                     Console.WriteLine("[!] CA Response             : The submission failed: {0}", cert_request.GetDispositionMessage());
-                    Console.WriteLine("[!] Last status             : 0x{0:X}", (uint)cert_request.GetLastStatus());
+
+                    var exception = Marshal.GetExceptionForHR(unchecked((int)last_status));
+                    if (exception != null && !string.IsNullOrEmpty(exception.Message))
+                        Console.WriteLine("[!] Last status             : {0}", exception.Message);
+                    else
+                        Console.WriteLine("[!] Last status             : 0x{0:X}", last_status);
                     break;
             }
 
@@ -360,7 +367,6 @@ namespace Certify
 
             return policies;
         }
-
         // from https://stackoverflow.com/a/23739932
         //    internal helper used to convert a RSA key to a PEM string
         private static string ExportPrivateKey(RSACryptoServiceProvider csp)
